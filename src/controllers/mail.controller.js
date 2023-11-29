@@ -8,9 +8,8 @@ const getAll = catchError(async (req, res) => {
 });
 
 const create = catchError(async (req, res) => {
-  const result = await Mail.create(req.body);
   const { email } = req.body;
-
+  const result = await Mail.create({ email });
   await sendEmail({
     to: email,
     subject: "Welcome to NewsFlow's Newsletter!",
