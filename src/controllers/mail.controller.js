@@ -11,7 +11,7 @@ const create = catchError(async (req, res) => {
   const result = await Mail.create(req.body);
   const { email } = req.body;
 
-  const mailOptions = {
+  await sendEmail({
     to: email,
     subject: "Welcome to NewsFlow's Newsletter!",
     html: `
@@ -49,17 +49,7 @@ const create = catchError(async (req, res) => {
         </body>
       </html>
     `,
-  };
-
-  // Send the email using the utility
-  try {
-    await sendEmail(mailOptions);
-    console.log("Welcome email sent successfully");
-  } catch (error) {
-    console.error("Error sending welcome email:", error);
-    // Handle error
-    return res.status(500).json({ error: "Failed to send welcome email" });
-  }
+  });
 
   return res.status(201).json(result);
 });
