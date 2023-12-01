@@ -2,6 +2,7 @@ const catchError = require("../utils/catchError");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const sendEmail = require("../utils/sendEmail");
 
 const getAll = catchError(async (req, res) => {
   const results = await User.findAll();
@@ -9,8 +10,93 @@ const getAll = catchError(async (req, res) => {
 });
 
 const create = catchError(async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const result = await User.create({ ...req.body, password: hashedPassword });
+  const { name, username, email, password } = req.body;
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create the user in the database
+  const result = await User.create({
+    name,
+    username,
+    email,
+    password: hashedPassword,
+  });
+
+  // Send a welcome email
+  await sendEmail({
+    to: email,
+    subject: "Welcome to NewsFlow!",
+    html: `
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
+        }
+  
+        .container {
+          max-width: 600px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: #fff;
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+  
+        h1 {
+          color: #ff0000; /* Red Title */
+        }
+  
+        p {
+          color: #666;
+          line-height: 1.5;
+        }
+  
+        ul {
+          color: #666;
+          list-style-type: disc;
+          padding-left: 20px;
+        }
+  
+        .thank-you-message {
+          font-weight: bold;
+        }
+  
+        .newsletter-team {
+          margin-top: 20px;
+          color: #333;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Welcome to NewsFlow, ${name}!</h1>
+        <p class="thank-you-message">
+          Thank you for joining our community. We're excited to have you on board!
+        </p>
+        <p>
+          By registering, you get the following advantages:
+        </p>
+        <ul>
+          <li>Save and bookmark your favorite news articles.</li>
+          <li>Share your own stories and experiences with people around the world.</li>
+          <li>Engage with the community by commenting, liking, and sharing articles.</li>
+          <li>Forgot your password? No worries! You can request to update it.</li>
+        </ul>
+        <p class="newsletter-team">
+          Enjoy your journey with NewsFlow!<br>Your NewsFlow Team
+        </p>
+      </div>
+    </body>
+  </html>
+  
+    `,
+  });
+
   return res.status(201).json(result);
 });
 

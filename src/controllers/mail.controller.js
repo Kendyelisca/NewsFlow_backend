@@ -9,45 +9,69 @@ const getAll = catchError(async (req, res) => {
 
 const create = catchError(async (req, res) => {
   const { email } = req.body;
-  const result = await Mail.create({ email });
+
   await sendEmail({
     to: email,
     subject: "Welcome to NewsFlow's Newsletter!",
     html: `
-      <html>
-        <head>
-          <style>
-            body {
-              font-family: 'Arial', sans-serif;
-              background-color: #f4f4f4;
-            }
-            .container {
-              max-width: 600px;
-              margin: 20px auto;
-              padding: 20px;
-              background-color: #fff;
-              border-radius: 10px;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-            h1 {
-              color: #333;
-            }
-            p {
-              color: #666;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>Welcome to our Newsletter!</h1>
-            <p>
-              Thank you for subscribing. We're excited to share our latest news and updates with you.
-            </p>
-            <p>Best regards,<br>Your Newsletter Team</p>
-          </div>
-        </body>
-      </html>
-    `,
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
+        }
+  
+        .container {
+          max-width: 600px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: #fff;
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+  
+        h1 {
+          color: #ff0000; /* Red Title */
+        }
+  
+        p {
+          color: #666;
+          line-height: 1.5;
+        }
+  
+        .thank-you-message {
+          font-weight: bold;
+        }
+  
+        .newsletter-team {
+          margin-top: 20px;
+          color: #333;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Welcome to our Newsletter!</h1>
+        <p class="thank-you-message">
+          Thank you for subscribing. We're thrilled to have you on board!
+        </p>
+        <p>
+          Get ready to stay informed with the latest updates on upcoming events, exclusive content, and more.
+        </p>
+        <p class="newsletter-team">
+          Best regards,<br>Your Newsletter Team
+        </p>
+      </div>
+    </body>
+  </html>
+`,
+  });
+
+  const result = await Mail.create({
+    email,
   });
 
   return res.status(201).json(result);
