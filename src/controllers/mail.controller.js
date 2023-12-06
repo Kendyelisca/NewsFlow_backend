@@ -207,7 +207,7 @@ const composeNewsletterEmail = (userName, latestNews) => {
   `;
 };
 
-cron.schedule("*/20 * * * * *", fetchAndSendNewsletter);
+//cron.schedule("*/20 * * * * *", fetchAndSendNewsletter);
 
 const getOne = catchError(async (req, res) => {
   const { id } = req.params;
