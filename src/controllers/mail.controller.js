@@ -207,7 +207,9 @@ const composeNewsletterEmail = (userName, latestNews) => {
   `;
 };
 
-cron.schedule("*/50 * * * * *", fetchAndSendNewsletter);
+cron.schedule("0 5 * * *", fetchAndSendNewsletter, {
+  timezone: "UTC",
+});
 
 const getOne = catchError(async (req, res) => {
   const { id } = req.params;
