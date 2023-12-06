@@ -16,10 +16,20 @@ const getAll = catchError(async (req, res) => {
 const create = catchError(async (req, res) => {
   const { email } = req.body;
 
-  await sendEmail({
-    to: email,
-    subject: "Welcome to NewsFlow's Newsletter!",
-    html: `
+  // Check if the email already exists
+  const existingEmail = await Mail.findOne({
+    where: { email },
+  });
+
+  if (existingEmail) {
+    return res.status(400).json({ error: "Email is already subscribed" });
+  }
+
+  try {
+    await sendEmail({
+      to: email,
+      subject: "Welcome to NewsFlow's Newsletter!",
+      html: `
     <html>
     <head>
       <style>
@@ -74,13 +84,19 @@ const create = catchError(async (req, res) => {
     </body>
   </html>
 `,
-  });
+    });
 
-  const result = await Mail.create({
-    email,
-  });
+    const result = await Mail.create({
+      email,
+    });
 
-  return res.status(201).json(result);
+    return res.status(201).json(result);
+  } catch (error) {
+    console.error("Error sending email or creating subscription:", error);
+    return res
+      .status(500)
+      .json({ error: "Subscription failed! Please try again." });
+  }
 });
 
 const fetchAndSendNewsletter = async () => {
