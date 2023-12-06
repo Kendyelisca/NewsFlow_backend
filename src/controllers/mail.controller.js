@@ -84,6 +84,7 @@ const create = catchError(async (req, res) => {
 });
 
 const fetchAndSendNewsletter = async () => {
+  console.log("Cron job started");
   const apiKey = process.env.API_KEY;
   try {
     // Step 2: Fetch latest news from GNews API
@@ -103,11 +104,26 @@ const fetchAndSendNewsletter = async () => {
     }));
 
     // Step 5: Send emails in parallel
-    await Promise.all(emailOptionsArray.map(sendEmail));
+    await Promise.all(emailOptionsArray.map(sendEmailWithRetry));
 
     console.log("Newsletter sent to all subscribed users");
   } catch (error) {
     console.error("Error fetching news or sending newsletters:", error);
+  }
+};
+
+const sendEmailWithRetry = async (emailOptions) => {
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      await sendEmail(emailOptions);
+      console.log("Email sent successfully");
+      break; // Break out of the loop if successful
+    } catch (error) {
+      console.error("Error sending email:", error);
+      retries--;
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
+    }
   }
 };
 
@@ -191,7 +207,7 @@ const composeNewsletterEmail = (userName, latestNews) => {
   `;
 };
 
-cron.schedule("0 5 * * *", fetchAndSendNewsletter);
+cron.schedule("*/20 * * * * *", fetchAndSendNewsletter);
 
 const getOne = catchError(async (req, res) => {
   const { id } = req.params;
