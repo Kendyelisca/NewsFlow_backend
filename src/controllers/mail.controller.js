@@ -223,7 +223,7 @@ const composeNewsletterEmail = (userName, latestNews) => {
   `;
 };
 
-cron.schedule("0 5 * * *", fetchAndSendNewsletter, {
+cron.schedule("0 */10 * * *", fetchAndSendNewsletter, {
   timezone: "UTC",
 });
 

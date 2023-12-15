@@ -4,19 +4,18 @@ const {
   getOne,
   remove,
   update,
-} = require("../controllers/story.controller");
+} = require("../controllers/feedback.controller");
 const express = require("express");
 const verifyJWT = require("../utils/verifyJWT");
 
-const storyRouter = express.Router();
+const feedbackRouter = express.Router();
 
-storyRouter.route("/").get(getAll).post(verifyJWT, create);
+feedbackRouter.route("/").get(getAll).post(verifyJWT, create);
 
-// Combine the /:id route with /likes route
-storyRouter
+feedbackRouter
   .route("/:id")
   .get(getOne)
   .delete(verifyJWT, remove)
   .put(verifyJWT, update);
 
-module.exports = storyRouter;
+module.exports = feedbackRouter;
